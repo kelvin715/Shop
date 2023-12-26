@@ -32,47 +32,44 @@ import java.util.Map;
 
 /**
  * Created by liuyangkly on 15/8/9.
- * 绠€鍗昺ain鍑芥暟锛岀敤浜庢祴璇曞綋闈粯api
- * sdk鍜宒emo鐨勬剰瑙佸拰闂鍙嶉璇疯仈绯伙細liuyang.kly@alipay.com
+ * 简单main函数，用于测试当面付api
+ * sdk和demo的意见和问题反馈请联系：liuyang.kly@alipay.com
  */
 public class Main {
     private static Log log = LogFactory.getLog(Main.class);
 
-    // 鏀粯瀹濆綋闈粯2.0鏈嶅姟
+    // 支付宝当面付2.0服务
     private static AlipayTradeService tradeService;
 
-    // 鏀粯瀹濆綋闈粯2.0鏈嶅姟锛堥泦鎴愪簡浜ゆ槗淇濋殰鎺ュ彛閫昏緫锛�
+    // 支付宝当面付2.0服务（集成了交易保障接口逻辑）
     private static AlipayTradeService tradeWithHBService;
 
-    // 鏀粯瀹濅氦鏄撲繚闅滄帴鍙ｆ湇鍔★紝渚涙祴璇曟帴鍙pi浣跨敤锛岃鍏堥槄璇籸eadme.txt
+    // 支付宝交易保障接口服务，供测试接口api使用，请先阅读readme.txt
     private static AlipayMonitorService monitorService;
 
     static {
         /**
-         * 涓€瀹氳鍦ㄥ垱寤篈lipayTradeService涔嬪墠璋冪敤Configs.init()璁剧疆榛樿鍙傛暟
-         * Configs浼氳鍙朿lasspath涓嬬殑zfbinfo.properties鏂囦欢閰嶇疆淇℃伅锛屽鏋滄壘涓嶅埌璇ユ枃浠跺垯纭璇ユ枃浠舵槸鍚﹀湪classpath鐩綍
+         * 一定要在创建AlipayTradeService之前调用Configs.init()设置默认参数
+         * Configs会读取classpath下的zfbinfo.properties文件配置信息，如果找不到该文件则确认该文件是否在classpath目录
          */
         Configs.init("zfbinfo.properties");
 
         /**
-         * 浣跨敤Configs鎻愪緵鐨勯粯璁ゅ弬鏁�
-         * AlipayTradeService鍙互浣跨敤鍗曚緥鎴栬€呬负闈欐€佹垚鍛樺璞★紝涓嶉渶瑕佸弽澶峮ew
+         * 使用Configs提供的默认参数
+         * AlipayTradeService可以使用单例或者为静态成员对象，不需要反复new
          */
         tradeService = new AlipayTradeServiceImpl.ClientBuilder().build();
 
-        // 鏀粯瀹濆綋闈粯2.0鏈嶅姟锛堥泦鎴愪簡浜ゆ槗淇濋殰鎺ュ彛閫昏緫锛�
+        // 支付宝当面付2.0服务（集成了交易保障接口逻辑）
         tradeWithHBService = new AlipayTradeWithHBServiceImpl.ClientBuilder().build();
 
-        /**
-         * 濡傛灉闇€瑕佸湪绋嬪簭涓鐩朇onfigs鎻愪緵鐨勯粯璁ゅ弬鏁�, 鍙互浣跨敤ClientBuilder绫荤殑setXXX鏂规硶淇敼榛樿鍙傛暟
-         * 鍚﹀垯浣跨敤浠ｇ爜涓殑榛樿璁剧疆
-         */
+        /** 如果需要在程序中覆盖Configs提供的默认参数, 可以使用ClientBuilder类的setXXX方法修改默认参数 否则使用代码中的默认设置 */
         monitorService = new AlipayMonitorServiceImpl.ClientBuilder()
                 .setGatewayUrl("http://mcloudmonitor.com/gateway.do").setCharset("GBK")
                 .setFormat("json").build();
     }
 
-    // 绠€鍗曟墦鍗板簲绛�
+    // 简单打印应答
     private void dumpResponse(AlipayResponse response) {
         if (response != null) {
             log.info(String.format("code:%s, msg:%s", response.getCode(), response.getMsg()));
@@ -87,49 +84,49 @@ public class Main {
     public static void main(String[] args) {
         Main main = new Main();
 
-        // 绯荤粺鍟嗗晢娴嬭瘯浜ゆ槗淇濋殰鎺ュ彛api
+        // 系统商商测试交易保障接口api
         // main.test_monitor_sys();
 
-        // POS鍘傚晢娴嬭瘯浜ゆ槗淇濋殰鎺ュ彛api
+        // POS厂商测试交易保障接口api
         // main.test_monitor_pos();
 
-        // 娴嬭瘯浜ゆ槗淇濋殰鎺ュ彛璋冨害
+        // 测试交易保障接口调度
         // main.test_monitor_schedule_logic();
 
-        // 娴嬭瘯褰撻潰浠�2.0鏀粯锛堜娇鐢ㄦ湭闆嗘垚浜ゆ槗淇濋殰鎺ュ彛鐨勫綋闈粯2.0鏈嶅姟锛�
+        // 测试当面付2.0支付（使用未集成交易保障接口的当面付2.0服务）
         // main.test_trade_pay(tradeService);
 
-        // 娴嬭瘯鏌ヨ褰撻潰浠�2.0浜ゆ槗
+        // 测试查询当面付2.0交易
         // main.test_trade_query();
 
-        // 娴嬭瘯褰撻潰浠�2.0閫€璐�
+        // 测试当面付2.0退货
         // main.test_trade_refund();
 
-        // 娴嬭瘯褰撻潰浠�2.0鐢熸垚鏀粯浜岀淮鐮�
+        // 测试当面付2.0生成支付二维码
         main.test_trade_precreate();
     }
 
-    // 娴嬭瘯绯荤粺鍟嗕氦鏄撲繚闅滆皟搴�
+    // 测试系统商交易保障调度
     public void test_monitor_schedule_logic() {
-        // 鍚姩浜ゆ槗淇濋殰绾跨▼
+        // 启动交易保障线程
         DemoHbRunner demoRunner = new DemoHbRunner(monitorService);
-        demoRunner.setDelay(5); // 璁剧疆鍚姩鍚庡欢杩�5绉掑紑濮嬭皟搴︼紝涓嶈缃垯榛樿3绉�
-        demoRunner.setDuration(10); // 璁剧疆闂撮殧10绉掕繘琛岃皟搴︼紝涓嶈缃垯榛樿15 * 60绉�
+        demoRunner.setDelay(5); // 设置启动后延迟5秒开始调度，不设置则默认3秒
+        demoRunner.setDuration(10); // 设置间隔10秒进行调度，不设置则默认15 * 60秒
         demoRunner.schedule();
 
-        // 鍚姩褰撻潰浠橈紝姝ゅ姣忛殧5绉掕皟鐢ㄤ竴娆℃敮浠樻帴鍙ｏ紝骞朵笖褰撻殢鏈烘暟涓�0鏃朵氦鏄撲繚闅滅嚎绋嬮€€鍑�
+        // 启动当面付，此处每隔5秒调用一次支付接口，并且当随机数为0时交易保障线程退出
         while (Math.random() != 0) {
             test_trade_pay(tradeWithHBService);
             Utils.sleep(5 * 1000);
         }
 
-        // 婊¤冻閫€鍑烘潯浠跺悗鍙互璋冪敤shutdown浼橀泤瀹夊叏閫€鍑�
+        // 满足退出条件后可以调用shutdown优雅安全退出
         demoRunner.shutdown();
     }
 
-    // 绯荤粺鍟嗙殑璋冪敤鏍蜂緥锛屽～鍐欎簡鎵€鏈夌郴缁熷晢鍟嗛渶瑕佸～鍐欑殑瀛楁
+    // 系统商的调用样例，填写了所有系统商商需要填写的字段
     public void test_monitor_sys() {
-        // 绯荤粺鍟嗕娇鐢ㄧ殑浜ゆ槗淇℃伅鏍煎紡锛宩son瀛楃涓茬被鍨�
+        // 系统商使用的交易信息格式，json字符串类型
         List<SysTradeInfo> sysTradeInfoList = new ArrayList<SysTradeInfo>();
         sysTradeInfoList.add(SysTradeInfo.newInstance("00000001", 5.2, HbStatus.S));
         sysTradeInfoList.add(SysTradeInfo.newInstance("00000002", 4.4, HbStatus.F));
@@ -137,47 +134,47 @@ public class Main {
         sysTradeInfoList.add(SysTradeInfo.newInstance("00000004", 3.2, HbStatus.X));
         sysTradeInfoList.add(SysTradeInfo.newInstance("00000005", 4.1, HbStatus.X));
 
-        // 濉啓寮傚父淇℃伅锛屽鏋滄湁鐨勮瘽
+        // 填写异常信息，如果有的话
         List<ExceptionInfo> exceptionInfoList = new ArrayList<ExceptionInfo>();
         exceptionInfoList.add(ExceptionInfo.HE_SCANER);
         // exceptionInfoList.add(ExceptionInfo.HE_PRINTER);
         // exceptionInfoList.add(ExceptionInfo.HE_OTHER);
 
-        // 濉啓鎵╁睍鍙傛暟锛屽鏋滄湁鐨勮瘽
+        // 填写扩展参数，如果有的话
         Map<String, Object> extendInfo = new HashMap<String, Object>();
         // extendInfo.put("SHOP_ID", "BJ_ZZ_001");
         // extendInfo.put("TERMINAL_ID", "1234");
 
-        String appAuthToken = "搴旂敤鎺堟潈浠ょ墝";// 鏍规嵁鐪熷疄鍊煎～鍐�
+        String appAuthToken = "应用授权令牌";// 根据真实值填写
 
         AlipayHeartbeatSynRequestBuilder builder = new AlipayHeartbeatSynRequestBuilder()
                 .setAppAuthToken(appAuthToken).setProduct(Product.FP).setType(Type.CR)
                 .setEquipmentId("cr1000001").setEquipmentStatus(EquipStatus.NORMAL)
                 .setTime(Utils.toDate(new Date())).setStoreId("store10001").setMac("0a:00:27:00:00:00")
-                .setNetworkType("LAN").setProviderId("2088911212323549") // 璁剧疆绯荤粺鍟唒id
-                .setSysTradeInfoList(sysTradeInfoList) // 绯荤粺鍟嗗悓姝rade_info淇℃伅
-                // .setExceptionInfoList(exceptionInfoList) // 濉啓寮傚父淇℃伅锛屽鏋滄湁鐨勮瘽
-                .setExtendInfo(extendInfo) // 濉啓鎵╁睍淇℃伅锛屽鏋滄湁鐨勮瘽
+                .setNetworkType("LAN").setProviderId("2088911212323549") // 设置系统商pid
+                .setSysTradeInfoList(sysTradeInfoList) // 系统商同步trade_info信息
+                // .setExceptionInfoList(exceptionInfoList) // 填写异常信息，如果有的话
+                .setExtendInfo(extendInfo) // 填写扩展信息，如果有的话
         ;
 
         MonitorHeartbeatSynResponse response = monitorService.heartbeatSyn(builder);
         dumpResponse(response);
     }
 
-    // POS鍘傚晢鐨勮皟鐢ㄦ牱渚嬶紝濉啓浜嗘墍鏈塸os鍘傚晢闇€瑕佸～鍐欑殑瀛楁
+    // POS厂商的调用样例，填写了所有pos厂商需要填写的字段
     public void test_monitor_pos() {
-        // POS鍘傚晢浣跨敤鐨勪氦鏄撲俊鎭牸寮忥紝瀛楃涓茬被鍨�
+        // POS厂商使用的交易信息格式，字符串类型
         List<PosTradeInfo> posTradeInfoList = new ArrayList<PosTradeInfo>();
         posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.S, "1324", 7));
         posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.X, "1326", 15));
         posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.S, "1401", 8));
         posTradeInfoList.add(PosTradeInfo.newInstance(HbStatus.F, "1405", 3));
 
-        // 濉啓寮傚父淇℃伅锛屽鏋滄湁鐨勮瘽
+        // 填写异常信息，如果有的话
         List<ExceptionInfo> exceptionInfoList = new ArrayList<ExceptionInfo>();
         exceptionInfoList.add(ExceptionInfo.HE_PRINTER);
 
-        // 濉啓鎵╁睍鍙傛暟锛屽鏋滄湁鐨勮瘽
+        // 填写扩展参数，如果有的话
         Map<String, Object> extendInfo = new HashMap<String, Object>();
         // extendInfo.put("SHOP_ID", "BJ_ZZ_001");
         // extendInfo.put("TERMINAL_ID", "1234");
@@ -189,81 +186,79 @@ public class Main {
                 .setEquipmentStatus(EquipStatus.NORMAL)
                 .setTime("2015-09-28 11:14:49")
                 .setManufacturerPid("2088000000000009")
-                // 濉啓鏈哄叿鍟嗙殑鏀粯瀹漰id
+                // 填写机具商的支付宝pid
                 .setStoreId("store200001").setEquipmentPosition("31.2433190000,121.5090750000")
                 .setBbsPosition("2869719733-065|2896507033-091").setNetworkStatus("gggbbbgggnnn")
                 .setNetworkType("3G").setBattery("98").setWifiMac("0a:00:27:00:00:00")
                 .setWifiName("test_wifi_name").setIp("192.168.1.188")
-                .setPosTradeInfoList(posTradeInfoList) // POS鍘傚晢鍚屾trade_info淇℃伅
-                // .setExceptionInfoList(exceptionInfoList) // 濉啓寮傚父淇℃伅锛屽鏋滄湁鐨勮瘽
-                .setExtendInfo(extendInfo) // 濉啓鎵╁睍淇℃伅锛屽鏋滄湁鐨勮瘽
+                .setPosTradeInfoList(posTradeInfoList) // POS厂商同步trade_info信息
+                // .setExceptionInfoList(exceptionInfoList) // 填写异常信息，如果有的话
+                .setExtendInfo(extendInfo) // 填写扩展信息，如果有的话
         ;
 
         MonitorHeartbeatSynResponse response = monitorService.heartbeatSyn(builder);
         dumpResponse(response);
     }
 
-    // 娴嬭瘯褰撻潰浠�2.0鏀粯
+    // 测试当面付2.0支付
     public void test_trade_pay(AlipayTradeService service) {
-        // (蹇呭～) 鍟嗘埛缃戠珯璁㈠崟绯荤粺涓敮涓€璁㈠崟鍙凤紝64涓瓧绗︿互鍐咃紝鍙兘鍖呭惈瀛楁瘝銆佹暟瀛椼€佷笅鍒掔嚎锛�
-        // 闇€淇濊瘉鍟嗘埛绯荤粺绔笉鑳介噸澶嶏紝寤鸿閫氳繃鏁版嵁搴搒equence鐢熸垚锛�
+        // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
+        // 需保证商户系统端不能重复，建议通过数据库sequence生成，
         String outTradeNo = "tradepay" + System.currentTimeMillis()
                 + (long) (Math.random() * 10000000L);
 
-        // (蹇呭～) 璁㈠崟鏍囬锛岀矖鐣ユ弿杩扮敤鎴风殑鏀粯鐩殑銆傚鈥渪xx鍝佺墝xxx闂ㄥ簵娑堣垂鈥�
-        String subject = "xxx鍝佺墝xxx闂ㄥ簵褰撻潰浠樻秷璐�";
+        // (必填) 订单标题，粗略描述用户的支付目的。如“xxx品牌xxx门店消费”
+        String subject = "xxx品牌xxx门店当面付消费";
 
-        // (蹇呭～) 璁㈠崟鎬婚噾棰濓紝鍗曚綅涓哄厓锛屼笉鑳借秴杩�1浜垮厓
-        // 濡傛灉鍚屾椂浼犲叆浜嗐€愭墦鎶橀噾棰濄€�,銆愪笉鍙墦鎶橀噾棰濄€�,銆愯鍗曟€婚噾棰濄€戜笁鑰�,鍒欏繀椤绘弧瓒冲涓嬫潯浠�:銆愯鍗曟€婚噾棰濄€�=銆愭墦鎶橀噾棰濄€�+銆愪笉鍙墦鎶橀噾棰濄€�
+        // (必填) 订单总金额，单位为元，不能超过1亿元
+        // 如果同时传入了【打折金额】,【不可打折金额】,【订单总金额】三者,则必须满足如下条件:【订单总金额】=【打折金额】+【不可打折金额】
         String totalAmount = "0.01";
 
-        // (蹇呭～) 浠樻鏉＄爜锛岀敤鎴锋敮浠樺疂閽卞寘鎵嬫満app鐐瑰嚮鈥滀粯娆锯€濅骇鐢熺殑浠樻鏉＄爜
-        String authCode = "鐢ㄦ埛鑷繁鐨勬敮浠樺疂浠樻鐮�"; // 鏉＄爜绀轰緥锛�286648048691290423
-        // (鍙€夛紝鏍规嵁闇€瑕佸喅瀹氭槸鍚︿娇鐢�)
-        // 璁㈠崟鍙墦鎶橀噾棰濓紝鍙互閰嶅悎鍟嗗骞冲彴閰嶇疆鎶樻墸娲诲姩锛屽鏋滆鍗曢儴鍒嗗晢鍝佸弬涓庢墦鎶橈紝鍙互灏嗛儴鍒嗗晢鍝佹€讳环濉啓鑷虫瀛楁锛岄粯璁ゅ叏閮ㄥ晢鍝佸彲鎵撴姌
-        // 濡傛灉璇ュ€兼湭浼犲叆,浣嗕紶鍏ヤ簡銆愯鍗曟€婚噾棰濄€�,銆愪笉鍙墦鎶橀噾棰濄€� 鍒欒鍊奸粯璁や负銆愯鍗曟€婚噾棰濄€�-
-        // 銆愪笉鍙墦鎶橀噾棰濄€�
+        // (必填) 付款条码，用户支付宝钱包手机app点击“付款”产生的付款条码
+        String authCode = "用户自己的支付宝付款码"; // 条码示例，286648048691290423
+        // (可选，根据需要决定是否使用) 订单可打折金额，可以配合商家平台配置折扣活动，如果订单部分商品参与打折，可以将部分商品总价填写至此字段，默认全部商品可打折
+        // 如果该值未传入,但传入了【订单总金额】,【不可打折金额】 则该值默认为【订单总金额】- 【不可打折金额】
         // String discountableAmount = "1.00"; //
 
-        // (鍙€�) 璁㈠崟涓嶅彲鎵撴姌閲戦锛屽彲浠ラ厤鍚堝晢瀹跺钩鍙伴厤缃姌鎵ｆ椿鍔紝濡傛灉閰掓按涓嶅弬涓庢墦鎶橈紝鍒欏皢瀵瑰簲閲戦濉啓鑷虫瀛楁
-        // 濡傛灉璇ュ€兼湭浼犲叆,浣嗕紶鍏ヤ簡銆愯鍗曟€婚噾棰濄€�,銆愭墦鎶橀噾棰濄€�,鍒欒鍊奸粯璁や负銆愯鍗曟€婚噾棰濄€�-銆愭墦鎶橀噾棰濄€�
+        // (可选) 订单不可打折金额，可以配合商家平台配置折扣活动，如果酒水不参与打折，则将对应金额填写至此字段
+        // 如果该值未传入,但传入了【订单总金额】,【打折金额】,则该值默认为【订单总金额】-【打折金额】
         String undiscountableAmount = "0.0";
 
-        // 鍗栧鏀粯瀹濊处鍙稩D锛岀敤浜庢敮鎸佷竴涓绾﹁处鍙蜂笅鏀寔鎵撴鍒颁笉鍚岀殑鏀舵璐﹀彿锛�(鎵撴鍒皊ellerId瀵瑰簲鐨勬敮浠樺疂璐﹀彿)
-        // 濡傛灉璇ュ瓧娈典负绌猴紝鍒欓粯璁や负涓庢敮浠樺疂绛剧害鐨勫晢鎴风殑PID锛屼篃灏辨槸appid瀵瑰簲鐨凱ID
+        // 卖家支付宝账号ID，用于支持一个签约账号下支持打款到不同的收款账号，(打款到sellerId对应的支付宝账号)
+        // 如果该字段为空，则默认为与支付宝签约的商户的PID，也就是appid对应的PID
         String sellerId = "";
 
-        // 璁㈠崟鎻忚堪锛屽彲浠ュ浜ゆ槗鎴栧晢鍝佽繘琛屼竴涓缁嗗湴鎻忚堪锛屾瘮濡傚～鍐�"璐拱鍟嗗搧3浠跺叡20.00鍏�"
-        String body = "璐拱鍟嗗搧3浠跺叡20.00鍏�";
+        // 订单描述，可以对交易或商品进行一个详细地描述，比如填写"购买商品3件共20.00元"
+        String body = "购买商品3件共20.00元";
 
-        // 鍟嗘埛鎿嶄綔鍛樼紪鍙凤紝娣诲姞姝ゅ弬鏁板彲浠ヤ负鍟嗘埛鎿嶄綔鍛樺仛閿€鍞粺璁�
+        // 商户操作员编号，添加此参数可以为商户操作员做销售统计
         String operatorId = "test_operator_id";
 
-        // (蹇呭～) 鍟嗘埛闂ㄥ簵缂栧彿锛岄€氳繃闂ㄥ簵鍙峰拰鍟嗗鍚庡彴鍙互閰嶇疆绮惧噯鍒伴棬搴楃殑鎶樻墸淇℃伅锛岃璇㈡敮浠樺疂鎶€鏈敮鎸�
+        // (必填) 商户门店编号，通过门店号和商家后台可以配置精准到门店的折扣信息，详询支付宝技术支持
         String storeId = "test_store_id";
 
-        // 涓氬姟鎵╁睍鍙傛暟锛岀洰鍓嶅彲娣诲姞鐢辨敮浠樺疂鍒嗛厤鐨勭郴缁熷晢缂栧彿(閫氳繃setSysServiceProviderId鏂规硶)锛岃鎯呰鍜ㄨ鏀粯瀹濇妧鏈敮鎸�
+        // 业务扩展参数，目前可添加由支付宝分配的系统商编号(通过setSysServiceProviderId方法)，详情请咨询支付宝技术支持
         String providerId = "2088100200300400500";
         ExtendParams extendParams = new ExtendParams();
         extendParams.setSysServiceProviderId(providerId);
 
-        // 鏀粯瓒呮椂锛岀嚎涓嬫壂鐮佷氦鏄撳畾涔変负5鍒嗛挓
+        // 支付超时，线下扫码交易定义为5分钟
         String timeoutExpress = "5m";
 
-        // 鍟嗗搧鏄庣粏鍒楄〃锛岄渶濉啓璐拱鍟嗗搧璇︾粏淇℃伅锛�
+        // 商品明细列表，需填写购买商品详细信息，
         List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
-        // 鍒涘缓涓€涓晢鍝佷俊鎭紝鍙傛暟鍚箟鍒嗗埆涓哄晢鍝乮d锛堜娇鐢ㄥ浗鏍囷級銆佸悕绉般€佸崟浠凤紙鍗曚綅涓哄垎锛夈€佹暟閲忥紝濡傛灉闇€瑕佹坊鍔犲晢鍝佺被鍒紝璇﹁GoodsDetail
-        GoodsDetail goods1 = GoodsDetail.newInstance("goods_id001", "xxx闈㈠寘", 1000, 1);
-        // 鍒涘缓濂戒竴涓晢鍝佸悗娣诲姞鑷冲晢鍝佹槑缁嗗垪琛�
+        // 创建一个商品信息，参数含义分别为商品id（使用国标）、名称、单价（单位为分）、数量，如果需要添加商品类别，详见GoodsDetail
+        GoodsDetail goods1 = GoodsDetail.newInstance("goods_id001", "xxx面包", 1000, 1);
+        // 创建好一个商品后添加至商品明细列表
         goodsDetailList.add(goods1);
 
-        // 缁х画鍒涘缓骞舵坊鍔犵涓€鏉″晢鍝佷俊鎭紝鐢ㄦ埛璐拱鐨勪骇鍝佷负鈥滈粦浜虹墮鍒封€濓紝鍗曚环涓�5.00鍏冿紝璐拱浜嗕袱浠�
-        GoodsDetail goods2 = GoodsDetail.newInstance("goods_id002", "xxx鐗欏埛", 500, 2);
+        // 继续创建并添加第一条商品信息，用户购买的产品为“黑人牙刷”，单价为5.00元，购买了两件
+        GoodsDetail goods2 = GoodsDetail.newInstance("goods_id002", "xxx牙刷", 500, 2);
         goodsDetailList.add(goods2);
 
-        String appAuthToken = "搴旂敤鎺堟潈浠ょ墝";// 鏍规嵁鐪熷疄鍊煎～鍐�
+        String appAuthToken = "应用授权令牌";// 根据真实值填写
 
-        // 鍒涘缓鏉＄爜鏀粯璇锋眰builder锛岃缃姹傚弬鏁�
+        // 创建条码支付请求builder，设置请求参数
         AlipayTradePayRequestBuilder builder = new AlipayTradePayRequestBuilder()
                 // .setAppAuthToken(appAuthToken)
                 .setOutTradeNo(outTradeNo).setSubject(subject).setAuthCode(authCode)
@@ -272,40 +267,40 @@ public class Main {
                 .setExtendParams(extendParams).setSellerId(sellerId)
                 .setGoodsDetailList(goodsDetailList).setTimeoutExpress(timeoutExpress);
 
-        // 璋冪敤tradePay鏂规硶鑾峰彇褰撻潰浠樺簲绛�
+        // 调用tradePay方法获取当面付应答
         AlipayF2FPayResult result = service.tradePay(builder);
         switch (result.getTradeStatus()) {
             case SUCCESS:
-                log.info("鏀粯瀹濇敮浠樻垚鍔�: )");
+                log.info("支付宝支付成功: )");
                 break;
 
             case FAILED:
-                log.error("鏀粯瀹濇敮浠樺け璐�!!!");
+                log.error("支付宝支付失败!!!");
                 break;
 
             case UNKNOWN:
-                log.error("绯荤粺寮傚父锛岃鍗曠姸鎬佹湭鐭�!!!");
+                log.error("系统异常，订单状态未知!!!");
                 break;
 
             default:
-                log.error("涓嶆敮鎸佺殑浜ゆ槗鐘舵€侊紝浜ゆ槗杩斿洖寮傚父!!!");
+                log.error("不支持的交易状态，交易返回异常!!!");
                 break;
         }
     }
 
-    // 娴嬭瘯褰撻潰浠�2.0鏌ヨ璁㈠崟
+    // 测试当面付2.0查询订单
     public void test_trade_query() {
-        // (蹇呭～) 鍟嗘埛璁㈠崟鍙凤紝閫氳繃姝ゅ晢鎴疯鍗曞彿鏌ヨ褰撻潰浠樼殑浜ゆ槗鐘舵€�
+        // (必填) 商户订单号，通过此商户订单号查询当面付的交易状态
         String outTradeNo = "tradepay14817938139942440181";
 
-        // 鍒涘缓鏌ヨ璇锋眰builder锛岃缃姹傚弬鏁�
+        // 创建查询请求builder，设置请求参数
         AlipayTradeQueryRequestBuilder builder = new AlipayTradeQueryRequestBuilder()
                 .setOutTradeNo(outTradeNo);
 
         AlipayF2FQueryResult result = tradeService.queryTradeResult(builder);
         switch (result.getTradeStatus()) {
             case SUCCESS:
-                log.info("鏌ヨ杩斿洖璇ヨ鍗曟敮浠樻垚鍔�: )");
+                log.info("查询返回该订单支付成功: )");
 
                 AlipayTradeQueryResponse response = result.getResponse();
                 dumpResponse(response);
@@ -319,39 +314,38 @@ public class Main {
                 break;
 
             case FAILED:
-                log.error("鏌ヨ杩斿洖璇ヨ鍗曟敮浠樺け璐ユ垨琚叧闂�!!!");
+                log.error("查询返回该订单支付失败或被关闭!!!");
                 break;
 
             case UNKNOWN:
-                log.error("绯荤粺寮傚父锛岃鍗曟敮浠樼姸鎬佹湭鐭�!!!");
+                log.error("系统异常，订单支付状态未知!!!");
                 break;
 
             default:
-                log.error("涓嶆敮鎸佺殑浜ゆ槗鐘舵€侊紝浜ゆ槗杩斿洖寮傚父!!!");
+                log.error("不支持的交易状态，交易返回异常!!!");
                 break;
         }
     }
 
-    // 娴嬭瘯褰撻潰浠�2.0閫€娆�
+    // 测试当面付2.0退款
     public void test_trade_refund() {
-        // (蹇呭～) 澶栭儴璁㈠崟鍙凤紝闇€瑕侀€€娆句氦鏄撶殑鍟嗘埛澶栭儴璁㈠崟鍙�
+        // (必填) 外部订单号，需要退款交易的商户外部订单号
         String outTradeNo = "tradepay14817938139942440181";
 
-        // (蹇呭～) 閫€娆鹃噾棰濓紝璇ラ噾棰濆繀椤诲皬浜庣瓑浜庤鍗曠殑鏀粯閲戦锛屽崟浣嶄负鍏�
+        // (必填) 退款金额，该金额必须小于等于订单的支付金额，单位为元
         String refundAmount = "0.01";
 
-        // (鍙€夛紝闇€瑕佹敮鎸侀噸澶嶉€€璐ф椂蹇呭～)
-        // 鍟嗘埛閫€娆捐姹傚彿锛岀浉鍚屾敮浠樺疂浜ゆ槗鍙蜂笅鐨勪笉鍚岄€€娆捐姹傚彿瀵瑰簲鍚屼竴绗斾氦鏄撶殑涓嶅悓閫€娆剧敵璇凤紝
-        // 瀵逛簬鐩稿悓鏀粯瀹濅氦鏄撳彿涓嬪绗旂浉鍚屽晢鎴烽€€娆捐姹傚彿鐨勯€€娆句氦鏄擄紝鏀粯瀹濆彧浼氳繘琛屼竴娆￠€€娆�
+        // (可选，需要支持重复退货时必填) 商户退款请求号，相同支付宝交易号下的不同退款请求号对应同一笔交易的不同退款申请，
+        // 对于相同支付宝交易号下多笔相同商户退款请求号的退款交易，支付宝只会进行一次退款
         String outRequestNo = "";
 
-        // (蹇呭～) 閫€娆惧師鍥狅紝鍙互璇存槑鐢ㄦ埛閫€娆惧師鍥狅紝鏂逛究涓哄晢瀹跺悗鍙版彁渚涚粺璁�
-        String refundReason = "姝ｅ父閫€娆撅紝鐢ㄦ埛涔板浜�";
+        // (必填) 退款原因，可以说明用户退款原因，方便为商家后台提供统计
+        String refundReason = "正常退款，用户买多了";
 
-        // (蹇呭～) 鍟嗘埛闂ㄥ簵缂栧彿锛岄€€娆炬儏鍐典笅鍙互涓哄晢瀹跺悗鍙版彁渚涢€€娆炬潈闄愬垽瀹氬拰缁熻绛変綔鐢紝璇﹁鏀粯瀹濇妧鏈敮鎸�
+        // (必填) 商户门店编号，退款情况下可以为商家后台提供退款权限判定和统计等作用，详询支付宝技术支持
         String storeId = "test_store_id";
 
-        // 鍒涘缓閫€娆捐姹俠uilder锛岃缃姹傚弬鏁�
+        // 创建退款请求builder，设置请求参数
         AlipayTradeRefundRequestBuilder builder = new AlipayTradeRefundRequestBuilder()
                 .setOutTradeNo(outTradeNo).setRefundAmount(refundAmount).setRefundReason(refundReason)
                 .setOutRequestNo(outRequestNo).setStoreId(storeId);
@@ -359,90 +353,90 @@ public class Main {
         AlipayF2FRefundResult result = tradeService.tradeRefund(builder);
         switch (result.getTradeStatus()) {
             case SUCCESS:
-                log.info("鏀粯瀹濋€€娆炬垚鍔�: )");
+                log.info("支付宝退款成功: )");
                 break;
 
             case FAILED:
-                log.error("鏀粯瀹濋€€娆惧け璐�!!!");
+                log.error("支付宝退款失败!!!");
                 break;
 
             case UNKNOWN:
-                log.error("绯荤粺寮傚父锛岃鍗曢€€娆剧姸鎬佹湭鐭�!!!");
+                log.error("系统异常，订单退款状态未知!!!");
                 break;
 
             default:
-                log.error("涓嶆敮鎸佺殑浜ゆ槗鐘舵€侊紝浜ゆ槗杩斿洖寮傚父!!!");
+                log.error("不支持的交易状态，交易返回异常!!!");
                 break;
         }
     }
 
-    // 娴嬭瘯褰撻潰浠�2.0鐢熸垚鏀粯浜岀淮鐮�
+    // 测试当面付2.0生成支付二维码
     public void test_trade_precreate() {
-        // (蹇呭～) 鍟嗘埛缃戠珯璁㈠崟绯荤粺涓敮涓€璁㈠崟鍙凤紝64涓瓧绗︿互鍐咃紝鍙兘鍖呭惈瀛楁瘝銆佹暟瀛椼€佷笅鍒掔嚎锛�
-        // 闇€淇濊瘉鍟嗘埛绯荤粺绔笉鑳介噸澶嶏紝寤鸿閫氳繃鏁版嵁搴搒equence鐢熸垚锛�
+        // (必填) 商户网站订单系统中唯一订单号，64个字符以内，只能包含字母、数字、下划线，
+        // 需保证商户系统端不能重复，建议通过数据库sequence生成，
         String outTradeNo = "tradeprecreate" + System.currentTimeMillis()
                 + (long) (Math.random() * 10000000L);
 
-        // (蹇呭～) 璁㈠崟鏍囬锛岀矖鐣ユ弿杩扮敤鎴风殑鏀粯鐩殑銆傚鈥渪xx鍝佺墝xxx闂ㄥ簵褰撻潰浠樻壂鐮佹秷璐光€�
-        String subject = "xxx鍝佺墝xxx闂ㄥ簵褰撻潰浠樻壂鐮佹秷璐�";
+        // (必填) 订单标题，粗略描述用户的支付目的。如“xxx品牌xxx门店当面付扫码消费”
+        String subject = "xxx品牌xxx门店当面付扫码消费";
 
-        // (蹇呭～) 璁㈠崟鎬婚噾棰濓紝鍗曚綅涓哄厓锛屼笉鑳借秴杩�1浜垮厓
-        // 濡傛灉鍚屾椂浼犲叆浜嗐€愭墦鎶橀噾棰濄€�,銆愪笉鍙墦鎶橀噾棰濄€�,銆愯鍗曟€婚噾棰濄€戜笁鑰�,鍒欏繀椤绘弧瓒冲涓嬫潯浠�:銆愯鍗曟€婚噾棰濄€�=銆愭墦鎶橀噾棰濄€�+銆愪笉鍙墦鎶橀噾棰濄€�
+        // (必填) 订单总金额，单位为元，不能超过1亿元
+        // 如果同时传入了【打折金额】,【不可打折金额】,【订单总金额】三者,则必须满足如下条件:【订单总金额】=【打折金额】+【不可打折金额】
         String totalAmount = "0.01";
 
-        // (鍙€�) 璁㈠崟涓嶅彲鎵撴姌閲戦锛屽彲浠ラ厤鍚堝晢瀹跺钩鍙伴厤缃姌鎵ｆ椿鍔紝濡傛灉閰掓按涓嶅弬涓庢墦鎶橈紝鍒欏皢瀵瑰簲閲戦濉啓鑷虫瀛楁
-        // 濡傛灉璇ュ€兼湭浼犲叆,浣嗕紶鍏ヤ簡銆愯鍗曟€婚噾棰濄€�,銆愭墦鎶橀噾棰濄€�,鍒欒鍊奸粯璁や负銆愯鍗曟€婚噾棰濄€�-銆愭墦鎶橀噾棰濄€�
+        // (可选) 订单不可打折金额，可以配合商家平台配置折扣活动，如果酒水不参与打折，则将对应金额填写至此字段
+        // 如果该值未传入,但传入了【订单总金额】,【打折金额】,则该值默认为【订单总金额】-【打折金额】
         String undiscountableAmount = "0";
 
-        // 鍗栧鏀粯瀹濊处鍙稩D锛岀敤浜庢敮鎸佷竴涓绾﹁处鍙蜂笅鏀寔鎵撴鍒颁笉鍚岀殑鏀舵璐﹀彿锛�(鎵撴鍒皊ellerId瀵瑰簲鐨勬敮浠樺疂璐﹀彿)
-        // 濡傛灉璇ュ瓧娈典负绌猴紝鍒欓粯璁や负涓庢敮浠樺疂绛剧害鐨勫晢鎴风殑PID锛屼篃灏辨槸appid瀵瑰簲鐨凱ID
+        // 卖家支付宝账号ID，用于支持一个签约账号下支持打款到不同的收款账号，(打款到sellerId对应的支付宝账号)
+        // 如果该字段为空，则默认为与支付宝签约的商户的PID，也就是appid对应的PID
         String sellerId = "";
 
-        // 璁㈠崟鎻忚堪锛屽彲浠ュ浜ゆ槗鎴栧晢鍝佽繘琛屼竴涓缁嗗湴鎻忚堪锛屾瘮濡傚～鍐�"璐拱鍟嗗搧2浠跺叡15.00鍏�"
-        String body = "璐拱鍟嗗搧3浠跺叡20.00鍏�";
+        // 订单描述，可以对交易或商品进行一个详细地描述，比如填写"购买商品2件共15.00元"
+        String body = "购买商品3件共20.00元";
 
-        // 鍟嗘埛鎿嶄綔鍛樼紪鍙凤紝娣诲姞姝ゅ弬鏁板彲浠ヤ负鍟嗘埛鎿嶄綔鍛樺仛閿€鍞粺璁�
+        // 商户操作员编号，添加此参数可以为商户操作员做销售统计
         String operatorId = "test_operator_id";
 
-        // (蹇呭～) 鍟嗘埛闂ㄥ簵缂栧彿锛岄€氳繃闂ㄥ簵鍙峰拰鍟嗗鍚庡彴鍙互閰嶇疆绮惧噯鍒伴棬搴楃殑鎶樻墸淇℃伅锛岃璇㈡敮浠樺疂鎶€鏈敮鎸�
+        // (必填) 商户门店编号，通过门店号和商家后台可以配置精准到门店的折扣信息，详询支付宝技术支持
         String storeId = "test_store_id";
 
-        // 涓氬姟鎵╁睍鍙傛暟锛岀洰鍓嶅彲娣诲姞鐢辨敮浠樺疂鍒嗛厤鐨勭郴缁熷晢缂栧彿(閫氳繃setSysServiceProviderId鏂规硶)锛岃鎯呰鍜ㄨ鏀粯瀹濇妧鏈敮鎸�
+        // 业务扩展参数，目前可添加由支付宝分配的系统商编号(通过setSysServiceProviderId方法)，详情请咨询支付宝技术支持
         ExtendParams extendParams = new ExtendParams();
         extendParams.setSysServiceProviderId("2088100200300400500");
 
-        // 鏀粯瓒呮椂锛屽畾涔変负120鍒嗛挓
+        // 支付超时，定义为120分钟
         String timeoutExpress = "120m";
 
-        // 鍟嗗搧鏄庣粏鍒楄〃锛岄渶濉啓璐拱鍟嗗搧璇︾粏淇℃伅锛�
+        // 商品明细列表，需填写购买商品详细信息，
         List<GoodsDetail> goodsDetailList = new ArrayList<GoodsDetail>();
-        // 鍒涘缓涓€涓晢鍝佷俊鎭紝鍙傛暟鍚箟鍒嗗埆涓哄晢鍝乮d锛堜娇鐢ㄥ浗鏍囷級銆佸悕绉般€佸崟浠凤紙鍗曚綅涓哄垎锛夈€佹暟閲忥紝濡傛灉闇€瑕佹坊鍔犲晢鍝佺被鍒紝璇﹁GoodsDetail
-        GoodsDetail goods1 = GoodsDetail.newInstance("goods_id001", "xxx灏忛潰鍖�", 1000, 1);
-        // 鍒涘缓濂戒竴涓晢鍝佸悗娣诲姞鑷冲晢鍝佹槑缁嗗垪琛�
+        // 创建一个商品信息，参数含义分别为商品id（使用国标）、名称、单价（单位为分）、数量，如果需要添加商品类别，详见GoodsDetail
+        GoodsDetail goods1 = GoodsDetail.newInstance("goods_id001", "xxx小面包", 1000, 1);
+        // 创建好一个商品后添加至商品明细列表
         goodsDetailList.add(goods1);
 
-        // 缁х画鍒涘缓骞舵坊鍔犵涓€鏉″晢鍝佷俊鎭紝鐢ㄦ埛璐拱鐨勪骇鍝佷负鈥滈粦浜虹墮鍒封€濓紝鍗曚环涓�5.00鍏冿紝璐拱浜嗕袱浠�
-        GoodsDetail goods2 = GoodsDetail.newInstance("goods_id002", "xxx鐗欏埛", 500, 2);
+        // 继续创建并添加第一条商品信息，用户购买的产品为“黑人牙刷”，单价为5.00元，购买了两件
+        GoodsDetail goods2 = GoodsDetail.newInstance("goods_id002", "xxx牙刷", 500, 2);
         goodsDetailList.add(goods2);
 
-        // 鍒涘缓鎵爜鏀粯璇锋眰builder锛岃缃姹傚弬鏁�
+        // 创建扫码支付请求builder，设置请求参数
         AlipayTradePrecreateRequestBuilder builder = new AlipayTradePrecreateRequestBuilder()
                 .setSubject(subject).setTotalAmount(totalAmount).setOutTradeNo(outTradeNo)
                 .setUndiscountableAmount(undiscountableAmount).setSellerId(sellerId).setBody(body)
                 .setOperatorId(operatorId).setStoreId(storeId).setExtendParams(extendParams)
                 .setTimeoutExpress(timeoutExpress)
-                // .setNotifyUrl("http://www.test-notify-url.com")//鏀粯瀹濇湇鍔″櫒涓诲姩閫氱煡鍟嗘埛鏈嶅姟鍣ㄩ噷鎸囧畾鐨勯〉闈ttp璺緞,鏍规嵁闇€瑕佽缃�
+                // .setNotifyUrl("http://www.test-notify-url.com")//支付宝服务器主动通知商户服务器里指定的页面http路径,根据需要设置
                 .setGoodsDetailList(goodsDetailList);
 
         AlipayF2FPrecreateResult result = tradeService.tradePrecreate(builder);
         switch (result.getTradeStatus()) {
             case SUCCESS:
-                log.info("鏀粯瀹濋涓嬪崟鎴愬姛: )");
+                log.info("支付宝预下单成功: )");
 
                 AlipayTradePrecreateResponse response = result.getResponse();
                 dumpResponse(response);
 
-                // 闇€瑕佷慨鏀逛负杩愯鏈哄櫒涓婄殑璺緞
+                // 需要修改为运行机器上的路径
                 String filePath = String.format("/Users/sudo/Desktop/qr-%s.png",
                         response.getOutTradeNo());
                 log.info("filePath:" + filePath);
@@ -450,15 +444,15 @@ public class Main {
                 break;
 
             case FAILED:
-                log.error("鏀粯瀹濋涓嬪崟澶辫触!!!");
+                log.error("支付宝预下单失败!!!");
                 break;
 
             case UNKNOWN:
-                log.error("绯荤粺寮傚父锛岄涓嬪崟鐘舵€佹湭鐭�!!!");
+                log.error("系统异常，预下单状态未知!!!");
                 break;
 
             default:
-                log.error("涓嶆敮鎸佺殑浜ゆ槗鐘舵€侊紝浜ゆ槗杩斿洖寮傚父!!!");
+                log.error("不支持的交易状态，交易返回异常!!!");
                 break;
         }
     }
