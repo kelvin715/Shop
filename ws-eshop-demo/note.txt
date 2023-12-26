@@ -1,0 +1,9 @@
+ok
+1期代码
+spring boot2.1.3版
+
+添加redis存储token
+
+
+最后打包发布时，该工程中build path中没有tomcat
+实际上需要删除，否则，主启动类启动时，出现tomcat冲突
